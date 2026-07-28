@@ -539,6 +539,38 @@ img {
   gap: var(--space-md);
 }
 
+.vestora-v-loader {
+  font-family: var(--font-display), 'Playfair Display', Georgia, serif;
+  font-size: 3.8rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  user-select: none;
+  animation: pulsateV 2.2s ease-in-out infinite;
+}
+
+@keyframes pulsateV {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.35;
+    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.15));
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+    filter: drop-shadow(0 0 25px rgba(223, 190, 125, 0.75));
+  }
+  100% {
+    transform: scale(0.92);
+    opacity: 0.35;
+    filter: drop-shadow(0 0 6px rgba(197, 160, 89, 0.15));
+  }
+}
+
 .spinner {
   width: 34px;
   height: 34px;

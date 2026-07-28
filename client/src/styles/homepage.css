@@ -301,10 +301,26 @@
   overflow: hidden;
 }
 
+.hero-image-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center 35%;
+  background-repeat: no-repeat;
+  opacity: 0.28;
+  filter: contrast(1.18) brightness(0.85) grayscale(12%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 65%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 65%, rgba(0, 0, 0, 0) 100%);
+  z-index: 1;
+}
+
 .hero-abstract-art {
   width: 100%;
   height: 100%;
   position: relative;
+  z-index: 2;
   background: 
     radial-gradient(ellipse 60% 50% at 70% 40%, rgba(197, 160, 89, 0.08) 0%, transparent 70%),
     radial-gradient(ellipse 80% 80% at 20% 70%, rgba(20, 20, 25, 0.8) 0%, transparent 80%);

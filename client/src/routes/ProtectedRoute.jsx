@@ -7,8 +7,8 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="loader-container" style={{ minHeight: '100vh' }}>
-        <div className="spinner"></div>
-        <p style={{ color: 'var(--color-text-muted)' }}>Loading...</p>
+        <div className="vestora-v-loader">V</div>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 500, marginTop: '0.25rem' }}>Loading...</p>
       </div>
     );
   }

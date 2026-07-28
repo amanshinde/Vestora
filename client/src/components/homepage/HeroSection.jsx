@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import heroBgImage from '../../assets/vestora_cinematic_hero.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -67,6 +68,7 @@ const HeroSection = ({ reducedMotion }) => {
     <section className="hero-chapter" ref={containerRef}>
       {/* Background Abstract Financial Digital Architecture */}
       <div className="hero-background-media" ref={bgRef}>
+        <div className="hero-image-overlay" style={{ backgroundImage: `url(${heroBgImage})` }}></div>
         <div className="hero-abstract-art">
           <div className="light-thread thread-1"></div>
           <div className="light-thread thread-2"></div>
