@@ -1,7 +1,7 @@
 {
-  "name": "nexachain-server",
+  "name": "vestora-server",
   "version": "1.0.0",
-  "description": "NexaChain AI Backend - Express + MongoDB",
+  "description": "Vestora Backend - Express + MongoDB",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

@@ -15,7 +15,7 @@ const startServer = async () => {
   // Start server
   const PORT = env.PORT;
   app.listen(PORT, () => {
-    console.log(`🚀 NexaChain server running on port ${PORT} (${env.NODE_ENV})`);
+    console.log(`🚀 Vestora server running on port ${PORT} (${env.NODE_ENV})`);
   });
 };
 

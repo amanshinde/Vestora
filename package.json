@@ -1,7 +1,7 @@
 {
-  "name": "nexachain-investment-platform",
+  "name": "vestora-investment-platform",
   "version": "1.0.0",
-  "description": "NexaChain AI - Investment and Referral Platform (MERN Stack)",
+  "description": "Vestora - Investment and Referral Platform (MERN Stack)",
   "private": true,
   "scripts": {
     "dev:server": "cd server && npm run dev",

@@ -1,7 +1,7 @@
-# NexaChain AI MERN Technical Assessment
+# Vestora MERN Technical Assessment
 ## Application Architecture & Implementation Reference
 
-> **Purpose:** This document is the source of truth for building the NexaChain AI MERN Stack Developer technical assessment. Follow this architecture unless a change is necessary for correctness. Do not invent major business rules silently; document assumptions in the README.
+> **Purpose:** This document is the source of truth for building the Vestora MERN Stack Developer technical assessment. Follow this architecture unless a change is necessary for correctness. Do not invent major business rules silently; document assumptions in the README.
 
 ---
 
@@ -134,7 +134,7 @@ Never trust client input. Validate all request data and protect all private endp
 Use a monorepo.
 
 ```text
-nexachain-investment-platform/
+vestora-investment-platform/
 │
 ├── client/
 │   ├── public/
@@ -235,7 +235,7 @@ nexachain-investment-platform/
 │   └── index.js
 │
 ├── postman/
-│   └── NexaChain.postman_collection.json
+│   └── Vestora.postman_collection.json
 │
 ├── docs/
 │   └── ARCHITECTURE.md
@@ -498,7 +498,7 @@ IMPORTANT:
 
 The assessment does not define exact referral percentages. Therefore these values are assumptions and MUST be documented in README under `Assumptions`.
 
-Do not present assumed percentages as requirements supplied by NexaChain.
+Do not present assumed percentages as requirements supplied by Vestora.
 
 ---
 
