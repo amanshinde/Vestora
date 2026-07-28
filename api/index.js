@@ -1,5 +1,5 @@
-import app from './server/src/app.js';
-import connectDatabase from './server/src/config/database.js';
+import app from '../server/src/app.js';
+import connectDatabase from '../server/src/config/database.js';
 
 // Vercel serverless entry point
 let isConnected = false;
