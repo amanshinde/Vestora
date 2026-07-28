@@ -117,7 +117,7 @@ nexachain-investment-platform/
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd nexachain-investment-platform
+cd vestora
 
 # Install all dependencies
 cd server && npm install

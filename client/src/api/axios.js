@@ -13,7 +13,7 @@ const api = axios.create({
 // Request interceptor: attach auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('nexachain_token');
+    const token = localStorage.getItem('vestora_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,8 +27,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('nexachain_token');
-      localStorage.removeItem('nexachain_user');
+      localStorage.removeItem('vestora_token');
+      localStorage.removeItem('vestora_user');
       // Only redirect if not already on auth pages
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
         window.location.href = '/login';

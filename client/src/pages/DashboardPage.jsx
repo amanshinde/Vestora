@@ -5,11 +5,14 @@ import Loader from '../components/common/Loader.jsx';
 
 const formatCurrency = (val) => `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
-const StatCard = ({ icon, bgClass, accentClass, label, value }) => (
-  <div className={`glass-card stat-card ${accentClass}`}>
-    <div className={`stat-icon ${bgClass}`}>{icon}</div>
+const StatCard = ({ label, value, dotColor, subtext }) => (
+  <div className="stat-card">
+    <div className="stat-header-flex">
+      <span className="stat-label">{label}</span>
+      <span className={`stat-dot ${dotColor}`}></span>
+    </div>
     <div className="stat-value">{value}</div>
-    <div className="stat-label">{label}</div>
+    {subtext && <span style={{ fontSize: '0.75rem', color: '#757582', marginTop: '0.5rem', display: 'block' }}>{subtext}</span>}
   </div>
 );
 
@@ -29,7 +32,7 @@ const DashboardPage = () => {
         setSummary(summaryRes.data.data);
         setEarnings(earningsRes.data.data);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load dashboard');
+        setError(err.response?.data?.message || 'Failed to initialize terminal data');
       } finally {
         setLoading(false);
       }
@@ -37,12 +40,12 @@ const DashboardPage = () => {
     fetchData();
   }, []);
 
-  if (loading) return <Loader text="Loading dashboard..." />;
+  if (loading) return <Loader text="Synchronizing member portfolio..." />;
 
   if (error) {
     return (
       <div className="fade-in">
-        <div className="alert alert-error">⚠️ {error}</div>
+        <div className="alert alert-error"><span>{error}</span></div>
       </div>
     );
   }
@@ -50,46 +53,41 @@ const DashboardPage = () => {
   return (
     <div className="fade-in">
       <div className="page-header">
-        <h1 className="page-title">Dashboard</h1>
-        <p className="page-subtitle">Your investment overview at a glance</p>
+        <h1 className="page-title">Member Portfolio</h1>
+        <p className="page-subtitle">Real-time valuation and multi-stream yield telemetry</p>
       </div>
 
       {/* Stats Grid */}
       <div className="stats-grid stagger-children">
         <StatCard
-          icon="💰"
-          bgClass="bg-primary"
-          accentClass="accent-primary"
-          label="Total Investments"
+          label="Total Allocations"
           value={formatCurrency(summary?.totalInvestments)}
+          dotColor="gold"
+          subtext="Active capital terms"
         />
         <StatCard
-          icon="📈"
-          bgClass="bg-success"
-          accentClass="accent-success"
-          label="Daily ROI"
+          label="Daily Projected Yield"
           value={formatCurrency(summary?.dailyROI)}
+          dotColor="emerald"
+          subtext="Next midnight processing"
         />
         <StatCard
-          icon="🏆"
-          bgClass="bg-warning"
-          accentClass="accent-warning"
-          label="Total ROI Earned"
+          label="Cumulative ROI Generated"
           value={formatCurrency(summary?.totalROIEarned)}
+          dotColor="gold"
+          subtext="Verified zero-truncation"
         />
         <StatCard
-          icon="💎"
-          bgClass="bg-info"
-          accentClass="accent-info"
-          label="Total Level Income"
+          label="Network Yield Earned"
           value={formatCurrency(summary?.totalLevelIncomeEarned)}
+          dotColor="blue"
+          subtext="Across 5 connected tiers"
         />
         <StatCard
-          icon="💳"
-          bgClass="bg-success"
-          accentClass="accent-success"
-          label="Wallet Balance"
+          label="Liquid Wallet Balance"
           value={formatCurrency(summary?.walletBalance)}
+          dotColor="emerald"
+          subtext="Available for deployment"
         />
       </div>
 

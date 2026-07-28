@@ -19,7 +19,7 @@ const ROIHistoryPage = () => {
         setHistory(res.data.data);
         setPagination(res.data.pagination);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load ROI history');
+        setError(err.response?.data?.message || 'Failed to initialize yield ledger history');
       } finally {
         setLoading(false);
       }
@@ -30,20 +30,20 @@ const ROIHistoryPage = () => {
   return (
     <div className="fade-in">
       <div className="page-header">
-        <h1 className="page-title">ROI History</h1>
-        <p className="page-subtitle">Track your daily return on investment earnings</p>
+        <h1 className="page-title">Yield Ledger</h1>
+        <p className="page-subtitle">Audited record of automated midnight return processing</p>
       </div>
 
       {error ? (
-        <div className="alert alert-error">⚠️ {error}</div>
+        <div className="alert alert-error"><span>{error}</span></div>
       ) : loading ? (
-        <Loader text="Loading ROI history..." />
+        <Loader text="Retrieving ledger sessions..." />
       ) : history.length === 0 ? (
         <div className="glass-card">
           <EmptyState
-            icon="📈"
-            title="No ROI history yet"
-            text="ROI earnings will appear here after daily processing runs."
+            symbol="◇"
+            title="No return sessions logged"
+            text="Yield processing entries will appear here after automated midnight scheduler executions."
           />
         </div>
       ) : (
@@ -51,29 +51,31 @@ const ROIHistoryPage = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Investment</th>
-                <th>ROI %</th>
-                <th>Amount</th>
+                <th>Execution Date</th>
+                <th>Origin Term</th>
+                <th>Yield Rate</th>
+                <th>Amount Credited</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {history.map((roi) => (
                 <tr key={roi._id}>
-                  <td>{new Date(roi.processingDate).toLocaleDateString()}</td>
+                  <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>
+                    {new Date(roi.processingDate).toLocaleDateString()}
+                  </td>
                   <td>
                     {roi.investment ? (
-                      <span>
-                        {roi.investment.plan?.name} — ₹{Number(roi.investment.amount).toLocaleString('en-IN')}
+                      <span style={{ color: '#fbfaf6', fontWeight: 500 }}>
+                        {roi.investment.plan?.name} <span style={{ color: '#757582' }}>— ₹{Number(roi.investment.amount).toLocaleString('en-IN')}</span>
                       </span>
                     ) : (
-                      <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                      <span style={{ color: '#757582' }}>—</span>
                     )}
                   </td>
-                  <td>{roi.roiPercentage}%</td>
-                  <td style={{ fontWeight: 600, color: 'var(--color-success)' }}>
-                    +₹{Number(roi.roiAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>{roi.roiPercentage}%</td>
+                  <td style={{ fontWeight: 600, color: '#10b981', fontFamily: 'monospace' }}>
+                    + ₹{Number(roi.roiAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
                   <td>
                     <span className={`badge badge-${roi.status.toLowerCase()}`}>

@@ -30,7 +30,7 @@ const RegisterPage = () => {
       await register(formData);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed. Please verify your entries.');
     } finally {
       setLoading(false);
     }
@@ -39,15 +39,17 @@ const RegisterPage = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <div className="glass-card auth-card scale-in">
+        <div className="auth-card scale-in">
           <div className="auth-logo">
-            <h1>⚡ NexaChain AI</h1>
-            <p>Create your investment account</p>
+            <Link to="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              <h1>VESTORA</h1>
+            </Link>
+            <p>Initialize your investment account</p>
           </div>
 
           {error && (
             <div className="alert alert-error">
-              ⚠️ {error}
+              <span>{error}</span>
             </div>
           )}
 
@@ -59,7 +61,7 @@ const RegisterPage = () => {
                 type="text"
                 name="fullName"
                 className="form-input"
-                placeholder="John Doe"
+                placeholder="Alexander Wright"
                 value={formData.fullName}
                 onChange={handleChange}
                 required
@@ -73,7 +75,7 @@ const RegisterPage = () => {
                 type="email"
                 name="email"
                 className="form-input"
-                placeholder="you@example.com"
+                placeholder="client@vestora.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -119,7 +121,7 @@ const RegisterPage = () => {
                 type="text"
                 name="referralCode"
                 className="form-input"
-                placeholder="e.g. NX-A1B2C3D4"
+                placeholder="e.g. VST-92813"
                 value={formData.referralCode}
                 onChange={handleChange}
               />
@@ -127,15 +129,16 @@ const RegisterPage = () => {
 
             <button
               type="submit"
-              className="btn btn-primary btn-lg btn-full"
+              className="btn btn-primary btn-full"
               disabled={loading}
+              style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Creating Account...' : 'Open Account'}
             </button>
           </form>
 
           <div className="auth-footer">
-            Already have an account?{' '}
+            Already registered?{' '}
             <Link to="/login">Sign in</Link>
           </div>
         </div>

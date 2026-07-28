@@ -18,14 +18,14 @@ export const AuthProvider = ({ children }) => {
   // Check for existing session on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('nexachain_token');
+      const token = localStorage.getItem('vestora_token');
       if (token) {
         try {
           const res = await getMe();
           setUser(res.data.data);
         } catch {
-          localStorage.removeItem('nexachain_token');
-          localStorage.removeItem('nexachain_user');
+          localStorage.removeItem('vestora_token');
+          localStorage.removeItem('vestora_user');
         }
       }
       setLoading(false);
@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(async (credentials) => {
     const res = await loginUser(credentials);
     const { user: userData, token } = res.data.data;
-    localStorage.setItem('nexachain_token', token);
-    localStorage.setItem('nexachain_user', JSON.stringify(userData));
+    localStorage.setItem('vestora_token', token);
+    localStorage.setItem('vestora_user', JSON.stringify(userData));
     setUser(userData);
     return userData;
   }, []);
@@ -45,15 +45,15 @@ export const AuthProvider = ({ children }) => {
   const register = useCallback(async (data) => {
     const res = await registerUser(data);
     const { user: userData, token } = res.data.data;
-    localStorage.setItem('nexachain_token', token);
-    localStorage.setItem('nexachain_user', JSON.stringify(userData));
+    localStorage.setItem('vestora_token', token);
+    localStorage.setItem('vestora_user', JSON.stringify(userData));
     setUser(userData);
     return userData;
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('nexachain_token');
-    localStorage.removeItem('nexachain_user');
+    localStorage.removeItem('vestora_token');
+    localStorage.removeItem('vestora_user');
     setUser(null);
   }, []);
 

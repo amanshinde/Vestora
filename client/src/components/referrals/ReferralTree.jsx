@@ -2,23 +2,25 @@ import { useState } from 'react';
 
 /**
  * Recursive Referral Tree Node component.
- * Displays user info with expandable children.
+ * Displays member telemetry with expandable children.
  */
 const ReferralNode = ({ node }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
 
   return (
     <div className="tree-node">
       <div className="tree-node-content" onClick={() => hasChildren && setExpanded(!expanded)}>
         <div className="tree-node-avatar">
-          {node.fullName?.charAt(0)?.toUpperCase() || '?'}
+          {node.fullName?.charAt(0)?.toUpperCase() || 'V'}
         </div>
         <div className="tree-node-info">
           <div className="tree-node-name">{node.fullName}</div>
-          <div className="tree-node-meta">{node.email} · {node.referralCode}</div>
+          <div className="tree-node-meta" style={{ fontFamily: 'monospace', marginTop: '0.15rem' }}>
+            {node.email} · <span style={{ color: '#c5a059' }}>{node.referralCode}</span>
+          </div>
         </div>
-        <span className="tree-level-badge">L{node.level}</span>
+        <span className="tree-level-badge">L0{node.level}</span>
         {hasChildren && (
           <button
             className={`tree-toggle ${expanded ? 'expanded' : ''}`}
@@ -30,7 +32,7 @@ const ReferralNode = ({ node }) => {
       </div>
 
       {expanded && hasChildren && (
-        <div className="tree-children slide-in-left">
+        <div className="tree-children fade-in">
           {node.children.map((child) => (
             <ReferralNode key={child._id} node={child} />
           ))}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const LoginPage = () => {
@@ -23,7 +23,7 @@ const LoginPage = () => {
       await login(formData);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || 'Login failed. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -32,15 +32,17 @@ const LoginPage = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <div className="glass-card auth-card scale-in">
+        <div className="auth-card scale-in">
           <div className="auth-logo">
-            <h1>⚡ NexaChain AI</h1>
-            <p>Sign in to your investment dashboard</p>
+            <Link to="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              <h1>VESTORA</h1>
+            </Link>
+            <p>Sign in to your member dashboard</p>
           </div>
 
           {error && (
             <div className="alert alert-error">
-              ⚠️ {error}
+              <span>{error}</span>
             </div>
           )}
 
@@ -52,7 +54,7 @@ const LoginPage = () => {
                 type="email"
                 name="email"
                 className="form-input"
-                placeholder="you@example.com"
+                placeholder="client@vestora.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -67,7 +69,7 @@ const LoginPage = () => {
                 type="password"
                 name="password"
                 className="form-input"
-                placeholder="••••••••"
+                placeholder="••••••••••••"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -77,16 +79,17 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="btn btn-primary btn-lg btn-full"
+              className="btn btn-primary btn-full"
               disabled={loading}
+              style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Authenticating...' : 'Sign In'}
             </button>
           </form>
 
           <div className="auth-footer">
-            Don't have an account?{' '}
-            <Link to="/register">Create one</Link>
+            Don't have a member account?{' '}
+            <Link to="/register">Open Account</Link>
           </div>
         </div>
       </div>

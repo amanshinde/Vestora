@@ -1,13 +1,59 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { path: '/investments', label: 'Investments', icon: '💰' },
-  { path: '/roi-history', label: 'ROI History', icon: '📈' },
-  { path: '/referral-income', label: 'Referral Income', icon: '💎' },
-  { path: '/referrals', label: 'Referrals', icon: '👥' },
+  {
+    path: '/dashboard',
+    label: 'Overview',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="9" />
+        <rect x="14" y="3" width="7" height="5" />
+        <rect x="14" y="12" width="7" height="9" />
+        <rect x="3" y="16" width="7" height="5" />
+      </svg>
+    ),
+  },
+  {
+    path: '/investments',
+    label: 'Allocations',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
+  },
+  {
+    path: '/roi-history',
+    label: 'Yield Ledger',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+    ),
+  },
+  {
+    path: '/referral-income',
+    label: 'Network Yield',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
+  },
+  {
+    path: '/referrals',
+    label: 'My Network',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
 ];
 
 const DashboardLayout = () => {
@@ -28,19 +74,22 @@ const DashboardLayout = () => {
       )}
 
       {/* Sidebar */}
-      <aside style={{
-        ...styles.sidebar,
-        ...(sidebarOpen ? styles.sidebarOpen : {}),
-      }}>
+      <aside
+        className="dashboard-sidebar"
+        style={{
+          ...styles.sidebar,
+          ...(sidebarOpen ? styles.sidebarOpen : {}),
+        }}
+      >
         <div style={styles.sidebarHeader}>
-          <h2 style={styles.logo}>
-            <span style={styles.logoIcon}>⚡</span>
-            NexaChain
-          </h2>
-          <span style={styles.logoSub}>AI Platform</span>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <h2 style={styles.logo}>VESTORA</h2>
+            <span style={styles.logoSub}>MEMBER TERMINAL</span>
+          </Link>
         </div>
 
         <nav style={styles.nav}>
+          <span style={styles.navSectionHeader}>TELEMETRY & ASSETS</span>
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -60,15 +109,15 @@ const DashboardLayout = () => {
         <div style={styles.sidebarFooter}>
           <div style={styles.userInfo}>
             <div style={styles.userAvatar}>
-              {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+              {user?.fullName?.charAt(0)?.toUpperCase() || 'V'}
             </div>
             <div style={styles.userDetails}>
-              <p style={styles.userName}>{user?.fullName || 'User'}</p>
+              <p style={styles.userName}>{user?.fullName || 'Verified Member'}</p>
               <p style={styles.userEmail}>{user?.email || ''}</p>
             </div>
           </div>
           <button onClick={handleLogout} style={styles.logoutBtn}>
-            🚪 Logout
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -80,16 +129,23 @@ const DashboardLayout = () => {
           <button
             style={styles.menuBtn}
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-label="Toggle menu"
+            aria-label="Toggle Navigation Menu"
           >
             ☰
           </button>
+
+          <div style={styles.headerLeft}>
+            <span style={styles.statusIndicator}>● LIVE ENGINE</span>
+          </div>
+
           <div style={styles.headerRight}>
             <div style={styles.walletBadge}>
-              💳 ₹{(user?.walletBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              <span style={{ color: '#757582', fontSize: '0.75rem', marginRight: '6px' }}>LIQUID WALLET</span>
+              <span>₹{(user?.walletBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
             <div style={styles.referralBadge}>
-              🔗 {user?.referralCode || ''}
+              <span style={{ color: '#757582', fontSize: '0.75rem', marginRight: '6px' }}>REF CODE</span>
+              <span style={{ color: '#c5a059', fontFamily: 'monospace' }}>{user?.referralCode || ''}</span>
             </div>
           </div>
         </header>
@@ -107,18 +163,19 @@ const styles = {
   layout: {
     display: 'flex',
     minHeight: '100vh',
+    backgroundColor: '#080808',
   },
   overlay: {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     zIndex: 40,
-    backdropFilter: 'blur(4px)',
+    backdropFilter: 'blur(6px)',
   },
   sidebar: {
-    width: 'var(--sidebar-width)',
-    backgroundColor: 'var(--color-bg-secondary)',
-    borderRight: '1px solid var(--color-border)',
+    width: '270px',
+    backgroundColor: '#121216',
+    borderRight: '1px solid rgba(255, 255, 255, 0.07)',
     display: 'flex',
     flexDirection: 'column',
     position: 'fixed',
@@ -126,87 +183,95 @@ const styles = {
     left: 0,
     bottom: 0,
     zIndex: 50,
-    transition: 'transform var(--transition-base)',
+    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
     transform: 'translateX(-100%)',
   },
   sidebarOpen: {
     transform: 'translateX(0)',
   },
   sidebarHeader: {
-    padding: '1.5rem',
-    borderBottom: '1px solid var(--color-border)',
+    padding: '1.75rem 1.5rem',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
   },
   logo: {
-    fontSize: 'var(--font-size-xl)',
+    fontSize: '1.25rem',
     fontWeight: 800,
-    background: 'var(--gradient-primary)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
+    letterSpacing: '0.25em',
+    color: '#fbfaf6',
     margin: 0,
-  },
-  logoIcon: {
-    WebkitTextFillColor: 'initial',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
   },
   logoSub: {
-    fontSize: 'var(--font-size-xs)',
-    color: 'var(--color-text-muted)',
-    marginTop: '0.125rem',
+    fontSize: '0.68rem',
+    color: '#757582',
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    marginTop: '0.25rem',
+    display: 'block',
+    fontFamily: 'monospace',
   },
   nav: {
     flex: 1,
-    padding: '1rem 0.75rem',
+    padding: '1.5rem 1rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.25rem',
+    gap: '0.35rem',
     overflowY: 'auto',
+  },
+  navSectionHeader: {
+    fontSize: '0.7rem',
+    color: '#52525c',
+    letterSpacing: '0.1em',
+    fontWeight: 700,
+    padding: '0 0.75rem 0.5rem',
   },
   navItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
+    gap: '0.85rem',
     padding: '0.75rem 1rem',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--color-text-secondary)',
-    fontSize: 'var(--font-size-sm)',
+    borderRadius: '6px',
+    color: '#a1a1aa',
+    fontSize: '0.9rem',
     fontWeight: 500,
     textDecoration: 'none',
-    transition: 'all var(--transition-fast)',
+    transition: 'all 0.2s ease',
   },
   navItemActive: {
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-    color: 'var(--color-accent-primary-light)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    color: '#fbfaf6',
     fontWeight: 600,
+    borderLeft: '2px solid #c5a059',
   },
   navIcon: {
-    fontSize: '1.125rem',
-    width: '24px',
-    textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#757582',
   },
   sidebarFooter: {
-    padding: '1rem',
-    borderTop: '1px solid var(--color-border)',
+    padding: '1.25rem 1.25rem',
+    borderTop: '1px solid rgba(255, 255, 255, 0.07)',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
   userInfo: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
-    marginBottom: '0.75rem',
+    marginBottom: '1rem',
   },
   userAvatar: {
     width: '36px',
     height: '36px',
-    borderRadius: 'var(--radius-full)',
-    background: 'var(--gradient-primary)',
+    borderRadius: '6px',
+    backgroundColor: '#1b1b22',
+    border: '1px solid rgba(197, 160, 89, 0.4)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 'var(--font-size-sm)',
+    fontSize: '0.85rem',
     fontWeight: 700,
-    color: 'white',
+    color: '#c5a059',
     flexShrink: 0,
   },
   userDetails: {
@@ -214,17 +279,17 @@ const styles = {
     flex: 1,
   },
   userName: {
-    fontSize: 'var(--font-size-sm)',
+    fontSize: '0.85rem',
     fontWeight: 600,
-    color: 'var(--color-text-primary)',
+    color: '#fbfaf6',
     margin: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   userEmail: {
-    fontSize: 'var(--font-size-xs)',
-    color: 'var(--color-text-muted)',
+    fontSize: '0.75rem',
+    color: '#757582',
     margin: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -232,26 +297,26 @@ const styles = {
   },
   logoutBtn: {
     width: '100%',
-    padding: '0.5rem',
-    background: 'rgba(239, 68, 68, 0.08)',
-    border: '1px solid rgba(239, 68, 68, 0.15)',
-    borderRadius: 'var(--radius-md)',
-    color: '#f87171',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 500,
+    padding: '0.6rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    borderRadius: '6px',
+    color: '#c2c2cc',
+    fontSize: '0.82rem',
+    fontWeight: 600,
     cursor: 'pointer',
-    transition: 'all var(--transition-fast)',
+    transition: 'all 0.2s ease',
     fontFamily: 'var(--font-family)',
   },
   header: {
-    height: 'var(--header-height)',
-    padding: '0 1.5rem',
+    height: '70px',
+    padding: '0 2rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottom: '1px solid var(--color-border)',
-    backgroundColor: 'rgba(10, 14, 26, 0.8)',
-    backdropFilter: 'blur(12px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
+    backgroundColor: 'rgba(8, 8, 8, 0.85)',
+    backdropFilter: 'blur(16px)',
     position: 'sticky',
     top: 0,
     zIndex: 30,
@@ -259,34 +324,48 @@ const styles = {
   menuBtn: {
     background: 'none',
     border: 'none',
-    color: 'var(--color-text-primary)',
-    fontSize: '1.5rem',
+    color: '#fbfaf6',
+    fontSize: '1.4rem',
     cursor: 'pointer',
     padding: '0.25rem',
+  },
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  statusIndicator: {
+    fontSize: '0.72rem',
+    fontFamily: 'monospace',
+    color: '#10b981',
+    letterSpacing: '0.1em',
+    fontWeight: 600,
   },
   headerRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
+    gap: '1rem',
   },
   walletBadge: {
-    padding: '0.375rem 0.875rem',
-    background: 'rgba(16, 185, 129, 0.08)',
-    border: '1px solid rgba(16, 185, 129, 0.15)',
-    borderRadius: 'var(--radius-full)',
-    fontSize: 'var(--font-size-sm)',
+    padding: '0.45rem 1rem',
+    background: '#121216',
+    border: '1px solid rgba(255, 255, 255, 0.07)',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
     fontWeight: 600,
-    color: '#34d399',
+    color: '#10b981',
     fontVariantNumeric: 'tabular-nums',
+    display: 'flex',
+    alignItems: 'center',
   },
   referralBadge: {
-    padding: '0.375rem 0.875rem',
-    background: 'rgba(99, 102, 241, 0.08)',
-    border: '1px solid rgba(99, 102, 241, 0.15)',
-    borderRadius: 'var(--radius-full)',
-    fontSize: 'var(--font-size-sm)',
+    padding: '0.45rem 1rem',
+    background: '#121216',
+    border: '1px solid rgba(255, 255, 255, 0.07)',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
     fontWeight: 600,
-    color: 'var(--color-accent-primary-light)',
+    display: 'flex',
+    alignItems: 'center',
   },
   main: {
     flex: 1,
@@ -296,14 +375,13 @@ const styles = {
   },
   content: {
     flex: 1,
-    padding: '1.5rem',
-    maxWidth: '1400px',
+    padding: '2.5rem 2rem',
+    maxWidth: '1440px',
     width: '100%',
     margin: '0 auto',
   },
 };
 
-// Media query handled via CSS - add responsive styles
 const styleSheet = document.createElement('style');
 styleSheet.textContent = `
   @media (min-width: 1024px) {
@@ -312,14 +390,16 @@ styleSheet.textContent = `
     }
   }
 `;
-document.head.appendChild(styleSheet);
+if (typeof document !== 'undefined' && !document.getElementById('dashboard-responsive-style')) {
+  styleSheet.id = 'dashboard-responsive-style';
+  document.head.appendChild(styleSheet);
+}
 
-// Override sidebar for desktop
 if (typeof window !== 'undefined') {
   const updateSidebarStyles = () => {
     const isDesktop = window.innerWidth >= 1024;
     styles.sidebar.transform = isDesktop ? 'translateX(0)' : 'translateX(-100%)';
-    styles.main.marginLeft = isDesktop ? 'var(--sidebar-width)' : '0';
+    styles.main.marginLeft = isDesktop ? '270px' : '0';
     styles.menuBtn.display = isDesktop ? 'none' : 'block';
   };
   updateSidebarStyles();
