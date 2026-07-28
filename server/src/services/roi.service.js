@@ -76,7 +76,8 @@ const roiService = {
   },
 
   /**
-   * Process ROI for a single investment within a MongoDB transaction.
+   * Process ROI for a single investment within a MongoDB transaction,
+   * with seamless automatic fallback for standalone developer MongoDB setups.
    * Implements 3-layer idempotency:
    *   Layer 1: Application-level duplicate check (early exit)
    *   Layer 2: Unique MongoDB index on (investment, processingDate)
@@ -99,14 +100,13 @@ const roiService = {
       investment.plan.dailyROIPercentage
     );
 
-    const session = await mongoose.startSession();
+    let session;
+    let roiHistory;
 
     try {
-      let roiHistory;
-
+      session = await mongoose.startSession();
       await session.withTransaction(async () => {
         // Layer 2 + 3: Create ROI history within transaction
-        // The unique index on (investment, processingDate) provides database-level protection
         const [newROI] = await ROIHistory.create(
           [
             {
@@ -130,7 +130,7 @@ const roiService = {
           TRANSACTION_TYPES.ROI_CREDIT,
           'ROIHistory',
           newROI._id,
-          `Daily ROI (${investment.plan.dailyROIPercentage}%) on ${investment.plan.name} plan - ₹${investment.amount.toLocaleString()}`,
+          `Daily ROI (${investment.plan.dailyROIPercentage}%) on ${investment.plan.name} plan - ₹${investment.amount.toLocaleString('en-IN')}`,
           session
         );
 
@@ -151,9 +151,65 @@ const roiService = {
       if (error.code === 11000) {
         return { skipped: true, reason: 'Duplicate prevented by index' };
       }
+
+      // Standalone MongoDB fallback support: if replica set transactions are unsupported on local developer database,
+      // execute sequentially without transaction session wrapper.
+      const isTxUnsupported =
+        error.message &&
+        (error.message.includes('replica set') ||
+         error.message.includes('not supported') ||
+         error.message.includes('Transaction numbers') ||
+         error.code === 20);
+
+      if (isTxUnsupported) {
+        console.warn(`⚠️ Standalone MongoDB detected: executing ROI credit for investment ${investment._id} sequentially without transaction.`);
+        try {
+          const [newROI] = await ROIHistory.create([
+            {
+              user: investment.user,
+              investment: investment._id,
+              roiAmount,
+              roiPercentage: investment.plan.dailyROIPercentage,
+              processingDate,
+              status: ROI_STATUS.CREDITED,
+            },
+          ]);
+
+          roiHistory = newROI;
+
+          await walletService.creditWallet(
+            investment.user,
+            roiAmount,
+            TRANSACTION_TYPES.ROI_CREDIT,
+            'ROIHistory',
+            newROI._id,
+            `Daily ROI (${investment.plan.dailyROIPercentage}%) on ${investment.plan.name} plan - ₹${investment.amount.toLocaleString('en-IN')}`,
+            null
+          );
+
+          await referralService.distributeLevelIncome(
+            investment.user,
+            roiAmount,
+            investment._id,
+            newROI._id,
+            processingDate,
+            null
+          );
+
+          return { skipped: false, roiHistory };
+        } catch (fallbackErr) {
+          if (fallbackErr.code === 11000) {
+            return { skipped: true, reason: 'Duplicate prevented by index' };
+          }
+          throw fallbackErr;
+        }
+      }
+
       throw error;
     } finally {
-      await session.endSession();
+      if (session) {
+        await session.endSession().catch(() => {});
+      }
     }
   },
 

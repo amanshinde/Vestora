@@ -27,7 +27,9 @@ const referralService = {
 
     for (let level = 1; level <= MAX_REFERRAL_DEPTH; level++) {
       // Get current user's parent
-      const currentUser = await User.findById(currentUserId).select('referredBy').session(session).lean();
+      const query = User.findById(currentUserId).select('referredBy');
+      if (session) query.session(session);
+      const currentUser = await query.lean();
 
       if (!currentUser || !currentUser.referredBy) {
         break; // No more parents in the chain
@@ -63,7 +65,7 @@ const referralService = {
               processingDate,
             },
           ],
-          { session }
+          { session: session || undefined }
         );
 
         // Credit parent's wallet
@@ -74,7 +76,7 @@ const referralService = {
           'ReferralIncome',
           roiHistoryId,
           `Level ${level} referral income (${percentage}%) from ROI`,
-          session
+          session || null
         );
       } catch (error) {
         // Handle duplicate referral income (unique index protection)
