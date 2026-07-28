@@ -46,9 +46,17 @@
   font-family: var(--font-ui);
   overflow-x: hidden;
   position: relative;
-  selection-background-color: var(--accent-gold-dim);
-  selection-color: var(--accent-gold-light);
   -webkit-font-smoothing: antialiased;
+}
+
+.vestora-home ::selection {
+  background-color: var(--accent-gold-dim);
+  color: var(--accent-gold-light);
+}
+
+.vestora-home ::-moz-selection {
+  background-color: var(--accent-gold-dim);
+  color: var(--accent-gold-light);
 }
 
 /* ── Typography Utilities ── */
@@ -942,6 +950,51 @@
 
 .footer-link:hover {
   color: var(--text-primary);
+}
+
+.footer-social-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.social-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 1.1rem;
+  background: rgba(26, 26, 31, 0.85);
+  color: var(--text-secondary, #c2c2cc);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.social-badge:hover {
+  background: var(--bg-secondary, #141417);
+  border-color: var(--accent-gold, #c5a059);
+  color: var(--accent-gold, #c5a059);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.2);
+}
+
+.social-badge svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}
+
+.social-badge:hover svg {
+  transform: scale(1.15);
 }
 
 .footer-bottom {
