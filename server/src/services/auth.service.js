@@ -39,7 +39,7 @@ const authService = {
     // Generate unique referral code for new user
     const newReferralCode = await generateReferralCode();
 
-    // Create user with ₹100,000 test capital
+    // Create user with initial walletBalance = 0 prior to adjustment credit
     const user = await User.create({
       fullName,
       email: email.toLowerCase(),
@@ -47,27 +47,32 @@ const authService = {
       passwordHash: password,
       referralCode: newReferralCode,
       referredBy: referredByUser ? referredByUser._id : null,
-      walletBalance: 100000,
+      walletBalance: 0,
     });
 
-    // Log initial demo capital deployment in transaction ledger
+    // Log initial demo capital deployment in transaction ledger (+₹100,000)
     try {
       await walletService.creditWallet(
         user._id,
-        0, // balance already initialized at 100000 in constructor, just recording or we can create transaction
+        100000,
         TRANSACTION_TYPES.ADJUSTMENT,
-        'User',
+        'Adjustment',
         user._id,
         'Initial Demo Capital Allocation',
         null
-      ).catch(() => {});
-    } catch (e) {}
+      );
+    } catch (e) {
+      console.error('⚠️ Could not credit initial demo funds:', e.message);
+    }
+
+    // Refresh user object after balance increment
+    const finalUser = await User.findById(user._id).select('-passwordHash').lean();
 
     // Generate JWT
     const token = generateToken(user._id);
 
     return {
-      user: user.toJSON(),
+      user: finalUser || user.toJSON(),
       token,
     };
   },
