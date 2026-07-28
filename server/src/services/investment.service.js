@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Investment from '../models/Investment.js';
+import User from '../models/User.js';
 import ApiError from '../utils/ApiError.js';
 import walletService from './wallet.service.js';
 import { INVESTMENT_PLANS, INVESTMENT_STATUS, TRANSACTION_TYPES } from '../constants/transactionTypes.js';
@@ -10,8 +11,8 @@ import { INVESTMENT_PLANS, INVESTMENT_STATUS, TRANSACTION_TYPES } from '../const
 const investmentService = {
   /**
    * Create a new investment.
-   * Validates plan, snapshots plan terms, debits wallet, and creates investment
-   * within a MongoDB transaction.
+   * Validates plan, checks balance beforehand, debits wallet, and creates investment
+   * with seamless compatibility for both standalone MongoDB and Replica Sets.
    */
   async createInvestment(userId, { amount, planName }) {
     // Find matching plan configuration
@@ -23,27 +24,39 @@ const investmentService = {
     // Validate amount against plan limits
     if (amount < plan.minAmount) {
       throw ApiError.badRequest(
-        `Minimum investment for ${plan.name} plan is ₹${plan.minAmount.toLocaleString()}`,
+        `Minimum investment for ${plan.name} term is ₹${plan.minAmount.toLocaleString('en-IN')}`,
         'INVALID_AMOUNT'
       );
     }
     if (amount > plan.maxAmount && plan.maxAmount !== Infinity) {
       throw ApiError.badRequest(
-        `Maximum investment for ${plan.name} plan is ₹${plan.maxAmount.toLocaleString()}`,
+        `Maximum investment for ${plan.name} term is ₹${plan.maxAmount.toLocaleString('en-IN')}`,
         'INVALID_AMOUNT'
       );
     }
 
-    const session = await mongoose.startSession();
+    // Pre-verify sufficient balance to return clear operational feedback immediately
+    const user = await User.findById(userId);
+    if (!user) {
+      throw ApiError.notFound('Member account not found.', 'USER_NOT_FOUND');
+    }
+    if ((user.walletBalance || 0) < amount) {
+      throw ApiError.badRequest(
+        `Insufficient liquid wallet balance (₹${(user.walletBalance || 0).toLocaleString('en-IN')}). Please click "＋ ADD DEMO CAPITAL" in the upper terminal menu to recharge your available funds before deploying this term.`,
+        'INSUFFICIENT_BALANCE'
+      );
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + plan.durationDays);
+
+    let investment;
+    let session;
 
     try {
-      let investment;
-
+      session = await mongoose.startSession();
       await session.withTransaction(async () => {
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + plan.durationDays);
-
         // Create investment with plan snapshot
         const [newInvestment] = await Investment.create(
           [
@@ -70,17 +83,62 @@ const investmentService = {
           TRANSACTION_TYPES.INVESTMENT_DEBIT,
           'Investment',
           newInvestment._id,
-          `Investment in ${plan.name} plan - ₹${amount.toLocaleString()}`,
+          `Capital deployment in ${plan.name} plan - ₹${amount.toLocaleString('en-IN')}`,
           session
         );
 
         investment = newInvestment;
       });
+    } catch (err) {
+      // If MongoDB instance does not support replica set transactions (common on developer standalone setups),
+      // seamlessly fall back to executing sequentially without transaction session wrapper.
+      const isTxUnsupported =
+        err.message &&
+        (err.message.includes('replica set') ||
+         err.message.includes('not supported') ||
+         err.message.includes('Transaction numbers') ||
+         err.code === 20);
 
-      return investment;
+      if (isTxUnsupported && !err.isOperational) {
+        console.warn('⚠️ Standalone MongoDB detected: executing investment creation sequentially without transaction.');
+        
+        const [newInvestment] = await Investment.create([
+          {
+            user: userId,
+            amount,
+            plan: {
+              name: plan.name,
+              durationDays: plan.durationDays,
+              dailyROIPercentage: plan.dailyROIPercentage,
+            },
+            startDate,
+            endDate,
+            status: INVESTMENT_STATUS.ACTIVE,
+          },
+        ]);
+
+        await walletService.debitWallet(
+          userId,
+          amount,
+          TRANSACTION_TYPES.INVESTMENT_DEBIT,
+          'Investment',
+          newInvestment._id,
+          `Capital deployment in ${plan.name} plan - ₹${amount.toLocaleString('en-IN')}`,
+          null
+        );
+
+        investment = newInvestment;
+      } else {
+        // Re-throw operational or valid database errors
+        throw err;
+      }
     } finally {
-      await session.endSession();
+      if (session) {
+        await session.endSession().catch(() => {});
+      }
     }
+
+    return investment;
   },
 
   /**
@@ -116,12 +174,12 @@ const investmentService = {
     const investment = await Investment.findById(investmentId).lean();
 
     if (!investment) {
-      throw ApiError.notFound('Investment not found.', 'INVESTMENT_NOT_FOUND');
+      throw ApiError.notFound('Investment term not found.', 'INVESTMENT_NOT_FOUND');
     }
 
     // Ownership check — users can only access their own data
     if (investment.user.toString() !== userId.toString()) {
-      throw ApiError.forbidden('You do not have access to this investment.');
+      throw ApiError.forbidden('You do not have permission to access this investment record.');
     }
 
     return investment;

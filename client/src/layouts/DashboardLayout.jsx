@@ -58,12 +58,27 @@ const navItems = [
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const [recharging, setRecharging] = useState(false);
+  const [rechargeMsg, setRechargeMsg] = useState(false);
+  const { user, logout, addDemoCapital } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleRecharge = async () => {
+    try {
+      setRecharging(true);
+      await addDemoCapital();
+      setRechargeMsg(true);
+      setTimeout(() => setRechargeMsg(false), 3000);
+    } catch (err) {
+      console.error('Failed to recharge demo capital:', err);
+    } finally {
+      setRecharging(false);
+    }
   };
 
   return (
@@ -136,9 +151,36 @@ const DashboardLayout = () => {
 
           <div style={styles.headerLeft}>
             <span style={styles.statusIndicator}>● LIVE ENGINE</span>
+            {rechargeMsg && (
+              <span style={{ marginLeft: '14px', color: '#c5a059', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+                ✓ +₹100,000 DEMO CAPITAL CREDITED
+              </span>
+            )}
           </div>
 
           <div style={styles.headerRight}>
+            <button
+              onClick={handleRecharge}
+              disabled={recharging}
+              style={{
+                background: 'rgba(197, 160, 89, 0.1)',
+                border: '1px solid rgba(197, 160, 89, 0.35)',
+                color: '#c5a059',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontFamily: 'monospace',
+                letterSpacing: '0.05em'
+              }}
+            >
+              {recharging ? 'SYNCING...' : '＋ ADD DEMO CAPITAL'}
+            </button>
             <div style={styles.walletBadge}>
               <span style={{ color: '#757582', fontSize: '0.75rem', marginRight: '6px' }}>LIQUID WALLET</span>
               <span>₹{(user?.walletBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
@@ -344,6 +386,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
+    flexWrap: 'wrap',
   },
   walletBadge: {
     padding: '0.45rem 1rem',

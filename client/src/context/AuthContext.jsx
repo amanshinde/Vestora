@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { loginUser, registerUser, getMe } from '../api/auth.api.js';
+import { loginUser, registerUser, getMe, addDemoFunds } from '../api/auth.api.js';
 
 const AuthContext = createContext(null);
 
@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
         try {
           const res = await getMe();
           setUser(res.data.data);
+          localStorage.setItem('vestora_user', JSON.stringify(res.data.data));
         } catch {
           localStorage.removeItem('vestora_token');
           localStorage.removeItem('vestora_user');
@@ -57,12 +58,32 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
+  const addDemoCapital = useCallback(async () => {
+    const res = await addDemoFunds();
+    const updatedUser = res.data.data;
+    localStorage.setItem('vestora_user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+    return updatedUser;
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await getMe();
+      setUser(res.data.data);
+      localStorage.setItem('vestora_user', JSON.stringify(res.data.data));
+    } catch (e) {
+      console.error('Failed to refresh member state', e);
+    }
+  }, []);
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
+    addDemoCapital,
+    refreshUser,
     isAuthenticated: !!user,
   };
 

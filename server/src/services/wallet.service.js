@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import WalletTransaction from '../models/WalletTransaction.js';
+import ApiError from '../utils/ApiError.js';
 import { TRANSACTION_TYPES } from '../constants/transactionTypes.js';
 
 /**
@@ -15,12 +16,15 @@ const walletService = {
   async creditWallet(userId, amount, type, referenceType, referenceId, description, session) {
     const roundedAmount = Math.round(amount * 100) / 100;
 
-    const user = await User.findById(userId).session(session);
+    const query = User.findById(userId);
+    if (session) query.session(session);
+    const user = await query;
+
     if (!user) {
-      throw new Error(`User not found: ${userId}`);
+      throw ApiError.notFound(`User account not found: ${userId}`);
     }
 
-    const balanceBefore = user.walletBalance;
+    const balanceBefore = user.walletBalance || 0;
     const balanceAfter = Math.round((balanceBefore + roundedAmount) * 100) / 100;
 
     // Update wallet balance
@@ -28,12 +32,12 @@ const walletService = {
 
     // Update relevant totals
     if (type === TRANSACTION_TYPES.ROI_CREDIT) {
-      user.totalROIEarned = Math.round((user.totalROIEarned + roundedAmount) * 100) / 100;
+      user.totalROIEarned = Math.round(((user.totalROIEarned || 0) + roundedAmount) * 100) / 100;
     } else if (type === TRANSACTION_TYPES.REFERRAL_CREDIT) {
-      user.totalLevelIncomeEarned = Math.round((user.totalLevelIncomeEarned + roundedAmount) * 100) / 100;
+      user.totalLevelIncomeEarned = Math.round(((user.totalLevelIncomeEarned || 0) + roundedAmount) * 100) / 100;
     }
 
-    await user.save({ session });
+    await user.save({ session: session || null });
 
     // Create audit record
     const walletTxn = await WalletTransaction.create(
@@ -49,7 +53,7 @@ const walletService = {
           description,
         },
       ],
-      { session }
+      { session: session || undefined }
     );
 
     return walletTxn[0];
@@ -62,13 +66,19 @@ const walletService = {
   async debitWallet(userId, amount, type, referenceType, referenceId, description, session) {
     const roundedAmount = Math.round(amount * 100) / 100;
 
-    const user = await User.findById(userId).session(session);
+    const query = User.findById(userId);
+    if (session) query.session(session);
+    const user = await query;
+
     if (!user) {
-      throw new Error(`User not found: ${userId}`);
+      throw ApiError.notFound(`User account not found: ${userId}`);
     }
 
-    if (user.walletBalance < roundedAmount) {
-      throw new Error('Insufficient wallet balance');
+    if ((user.walletBalance || 0) < roundedAmount) {
+      throw ApiError.badRequest(
+        `Insufficient liquid wallet balance (₹${(user.walletBalance || 0).toLocaleString('en-IN')}). Please click "＋ ADD DEMO CAPITAL" in the upper terminal menu to recharge your available funds.`,
+        'INSUFFICIENT_BALANCE'
+      );
     }
 
     const balanceBefore = user.walletBalance;
@@ -76,7 +86,7 @@ const walletService = {
 
     // Update wallet balance
     user.walletBalance = balanceAfter;
-    await user.save({ session });
+    await user.save({ session: session || null });
 
     // Create audit record
     const walletTxn = await WalletTransaction.create(
@@ -92,7 +102,7 @@ const walletService = {
           description,
         },
       ],
-      { session }
+      { session: session || undefined }
     );
 
     return walletTxn[0];

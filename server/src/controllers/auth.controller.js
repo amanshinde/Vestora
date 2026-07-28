@@ -31,3 +31,13 @@ export const getMe = asyncHandler(async (req, res) => {
     data: user,
   });
 });
+
+export const addDemoFunds = asyncHandler(async (req, res) => {
+  const user = await authService.addDemoFunds(req.user._id);
+
+  res.json({
+    success: true,
+    message: 'Successfully recharged ₹100,000 in Demo Capital.',
+    data: user,
+  });
+});

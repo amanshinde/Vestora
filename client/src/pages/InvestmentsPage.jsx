@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createInvestment, getInvestments } from '../api/investment.api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import Loader from '../components/common/Loader.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import Pagination from '../components/common/Pagination.jsx';
@@ -11,6 +12,7 @@ const PLANS = [
 ];
 
 const InvestmentsPage = () => {
+  const { refreshUser } = useAuth();
   const [investments, setInvestments] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +52,7 @@ const InvestmentsPage = () => {
         amount: Number(formData.amount),
         planName: formData.planName,
       });
+      refreshUser();
       setFormSuccess('Capital allocation deployed successfully.');
       setFormData({ amount: '', planName: 'Starter' });
       setShowForm(false);
